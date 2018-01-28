@@ -182,7 +182,7 @@ inline void interpolateBiLin(uint8_t *rv, fp16 x, fp16 y,
       fp16To8(v2*(x - x_f) + v4*(x_c - x))*fp16To8(y_c - y);
     // it is underestimated due to truncation, so we add one
     short res = fp16ToI(s);
-    *rv = res < 255 ? res+1 : 255;
+    *rv = (res >= 0) ? ((res < 255) ? res+1 : 255) : 0;
   }
 }
 
