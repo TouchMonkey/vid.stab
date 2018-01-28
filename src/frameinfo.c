@@ -70,11 +70,11 @@ int vsFrameInfoInit(VSFrameInfo* fi, int width, int height, VSPixelFormat pForma
    case PF_RGB24:
    case PF_BGR24:
     fi->bytesPerPixel=3;
-    fi->planes = 0;
+    fi->planes = 1;
     break;
    case PF_RGBA:
     fi->bytesPerPixel=4;
-    fi->planes = 0;
+    fi->planes = 1;
     break;
    default:
     fi->pFormat=0;
