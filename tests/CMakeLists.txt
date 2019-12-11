@@ -5,13 +5,18 @@
 cmake_minimum_required (VERSION 2.6)
 project (vid.stab)
 
-SET(CMAKE_BUILTTYPE None)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/../CMakeModules/")
+
+include (FindSSE)
 
 option(USE_OMP "use parallelization use OMP" ON)
 
-#add_definitions( -Wall -O3 -Wno-pointer-sign -DTESTING  -std=gnu99)
-add_definitions(  -Wall -O0 -g -Wno-pointer-sign -DTESTING -std=gnu99)
+# Default to debug builds if no explicit build type specified.
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE "Debug")
+endif()
+
+add_definitions(-Wall -Wno-pointer-sign -DTESTING -std=gnu99)
 find_package(Orc)
 if(ORC_FOUND)
 add_definitions( -DUSE_ORC ${ORC_DEFINITIONS})
@@ -20,7 +25,9 @@ else()
 add_definitions( -DDISABLE_ORC)
 endif()
 
+if(SSE2_FOUND)
 add_definitions( -DUSE_SSE2 -msse2 -ffast-math -fno-show-column ) # -DUSE_SSE2_ASM
+endif()
 
 if(USE_OMP)
 add_definitions(-fopenmp -DUSE_OMP)

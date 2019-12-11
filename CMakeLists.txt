@@ -1,32 +1,27 @@
-cmake_minimum_required (VERSION 2.6)
+cmake_minimum_required (VERSION 2.8.5)
 project (vid.stab)
-
-SET(CMAKE_BUILTTYPE None)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMakeModules/")
 
 include (FindSSE)
+include (GNUInstallDirs)
 
 set(MAJOR_VERSION 1)
 set(MINOR_VERSION 1)
 set(PATCH_VERSION 0)
 set(VIDSTAB_VERSION ${MAJOR_VERSION}.${MINOR_VERSION}${PATCH_VERSION})
 
+# Default to release builds if no explicit build type specified.
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE "Release")
+endif()
+
 option(BUILD_SHARED_LIBS "build shared libraries instead of static libraries"
        ON)
 
 option(USE_OMP "use parallelization use OMP" ON)
 
-# determine lib suffix
-get_property(LIB64 GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS)
-if (LIB64 STREQUAL "TRUE")
-    set(LIBSUFFIX 64)
-else()
-    set(LIBSUFFIX "")
-endif()
-
-add_definitions( -Wall -O3 -g -Wno-pointer-sign -fPIC -std=gnu99)
-# add_definitions(  -Wall -O0 -g -Wno-pointer-sign )
+add_definitions(-Wall -Wno-pointer-sign -fPIC -std=gnu99)
 
 ### ORC is not used in any active code at the moment  ###
 # I tried it with 0.4.14
@@ -74,19 +69,19 @@ set(PKG_EXTRA_LIBS "${PKG_EXTRA_LIBS} ${ORC_LIBRARIES}")
 endif()
 if(USE_OMP)
 target_link_libraries(vidstab gomp)
-set(PKG_EXTRA_LIBS "${PKG_EXTRA_LIBS} -lgomp")
+set(PKG_EXTRA_LIBS "${PKG_EXTRA_LIBS} -lgomp -lpthread")
 endif()
 
 
 #if(!NOHEADERS)
 FILE(GLOB HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h")
-INSTALL(FILES ${HEADERS} DESTINATION include/vid.stab)
+INSTALL(FILES ${HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/vid.stab)
 #endif()
 
 INSTALL(TARGETS vidstab
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib${LIB_SUFFIX}
-  ARCHIVE DESTINATION lib${LIB_SUFFIX}
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
 
 include(create_pkgconfig_file)
